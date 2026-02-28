@@ -1,22 +1,24 @@
 {
   "name": "memory-visual-ide",
   "version": "0.1.0",
-  "main": "main.js",
+  "main": "electron/main.js",
   "scripts": {
-    "dev": "concurrently \"vite\" \"electron .\"",
+    "dev": "concurrently \"vite\" \"electron . --remote-debugging-port=9223\"",
     "build": "vite build",
+    "build:electron": "vite build --mode electron",
     "preview": "vite preview"
   },
   "dependencies": {
+    "@monaco-editor/react": "^4.6.0",
     "electron": "^30.0.0",
-    "monaco-editor": "^0.45.0",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "zustand": "^4.5.0"
   },
   "devDependencies": {
-    "@vitejs/plugin-react": "^4.7.0",
-    "concurrently": "^9.2.1",
-    "electron-reload": "^2.0.0-alpha.1",
-    "vite": "^5.0.0"
+    "@vitejs/plugin-react": "^4.2.1",
+    "concurrently": "^8.2.2",
+    "electron-reloader": "^1.2.3",
+    "vite": "^5.1.0"
   }
 }

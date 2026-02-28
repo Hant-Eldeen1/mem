@@ -1,32 +1,58 @@
-﻿import React, { useState } from "react";
-import Toolbar from "./components/Toolbar";
-import CEditor from "./editor/CEditor";
-import Sidebar from "./components/Sidebar";
+﻿// frontend/src/App.jsx
+import React, { useEffect, useState } from 'react';
+import { useMemoryStore } from './store/memoryStore';
+import Toolbar from './components/Toolbar/Toolbar';
+import EditorPanel from './components/Editor/EditorPanel';
+import MemoryStage from './components/MemoryStage/MemoryStage';
+import InspectorPanel from './components/Inspector/InspectorPanel';
+import Timeline from './components/Timeline/Timeline';
+import StatusBar from './components/StatusBar/StatusBar';
+import './styles.css';
 
-export default function App() {
-  const [selected, setSelected] = useState({ addr: null, value: null });
+function App() {
+  const { connectToBackend, isConnected, executionHistory } = useMemoryStore();
+  const [layout, setLayout] = useState('default'); // 'default', 'focus-editor', 'focus-memory'
 
-  // placeholders for future real state (from backend)
-  const memory = new Array(64).fill(0).map((v, i) => i);
+  useEffect(() => {
+    // Connect to Python backend via WebSocket or Electron IPC
+    connectToBackend();
+  }, []);
 
   return (
-    <div className="app-root">
-      <Toolbar />
-      <div className="main-grid">
-        <main className="left-panel">
-          <div className="code-frame">
-            <CEditor />
-          </div>
-        </main>
-
-        <aside className="right-panel">
-          <Sidebar
-            memory={memory}
-            selected={selected}
-            onSelect={(addr, value) => setSelected({ addr, value })}
-          />
-        </aside>
+    <div className={`app-container layout-${layout}`}>
+      {/* Top Toolbar */}
+      <Toolbar 
+        onLayoutChange={setLayout}
+        isConnected={isConnected}
+      />
+      
+      {/* Main Workspace */}
+      <div className="workspace">
+        {/* Left: Code Editor */}
+        <EditorPanel 
+          className="panel-editor"
+          onRun={(code) => window.electronAPI?.sendToBackend('c-code:execute', code)}
+        />
+        
+        {/* Center: Memory Visualization */}
+        <MemoryStage 
+          className="panel-memory"
+          history={executionHistory}
+        />
+        
+        {/* Right: Inspector */}
+        <InspectorPanel 
+          className="panel-inspector"
+        />
+      </div>
+      
+      {/* Bottom: Timeline & Status */}
+      <div className="bottom-panel">
+        <Timeline history={executionHistory} />
+        <StatusBar isConnected={isConnected} />
       </div>
     </div>
   );
 }
+
+export default App;
